@@ -16,8 +16,6 @@
 
 % Also:
 % a = F/m
-% F = ((-4) * eps) * (((-12) * ((sigma^12)/(r(t)^13))) - ((-6) * ...
-% *((sigma^6)/(r(t)^7))))
 % F is the negative derivation of the Lennart-Jones potential 
 
 % --- Main --- %
@@ -45,6 +43,7 @@ eps = 0.24 * 418.4;
 sigma = 3.4;
 m = 40;
 h = 3/N;
+ 
 
 % Creating lists needed for simulation
 R = zeros(1,N+1);
@@ -60,19 +59,17 @@ V(1) = v0;
 % Running the Algorithm
 for i = 1:N
 
+neg_derivate = @(r) ((-48 * eps * sigma^12)/(r^13) + (24 * eps * sigma^6)/(r^7));
+
 % Calculating the position
-R(i + 1) = 2 * R(i) + h * V(i) + ...
-+ (0.5 * h^2 * (-4) * eps) * (((-12) * ((sigma^12)/(R(i)^13))) - ((-6) * ((sigma^6)/(R(i)^7))));
+R(i + 1) = 2 * R(i) + h * V(i) + (h^2/(2 * m)) * neg_derivate(i);
 
 % Calculating the velocity
-V(i + 1) = V(i) + ...
-+ (h/2 * 1/m * (-4) * eps) * (((-12) * ((sigma^12)/(R(i)^13))) - ((-6) * ((sigma^6)/(R(i)^7)))) + ...
-+ (h/2 * 1/m * (-4) * eps) * (((-12) * ((sigma^12)/(R(i + 1)^13))) - ((-6) * ((sigma^6)/(R(i + 1)^7))));
+V(i + 1) = V(i) + h/(2 * m) * (neg_derivate(i) + neg_derivate(i + 1));
 
 
 % Calculating the energy
-E(i) = 1/2 * m * V(i)^2 + ...
-+ (4 * eps) * (((-12) * ((sigma^12)/(R(i)^13))) - ((-6) * ((sigma^6)/(R(i)^7))));    
+E(i) = 1/2 * m * V(i)^2 - neg_derivate(i);   
 
 
 %Updating time step
@@ -80,7 +77,7 @@ Z(i + 1) = Z(i) + h;
 end
 
 % Final energy calculation
-E(N+1) = 1/2 * m * V(N+1)^2 + 4 * eps * ((sigma/R(N + 1))^12 - (sigma/R(N + 1))^6);
+E(N+1) = 1/2 * m * V(N+1)^2 - neg_derivate(N+1);
 
 % --- PLOTTING --- %
 % Plotting the positions

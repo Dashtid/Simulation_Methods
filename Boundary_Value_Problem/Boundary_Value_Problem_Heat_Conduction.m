@@ -1,8 +1,6 @@
 % ------- % Boundary Value Problem % ------- %
 % ------------------------------------------ %
 
-
-
 Nvec = [9, 19, 39, 79];      % Number of steps                      
 Vvec = [0, 0,1, 0,5, 1] ;    % Used when looing through v
 

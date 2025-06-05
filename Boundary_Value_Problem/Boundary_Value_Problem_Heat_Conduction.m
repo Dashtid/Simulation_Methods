@@ -1,8 +1,6 @@
-% ------ % Solution to Laboration 2 % ------ %
 % ------- % Boundary Value Problem % ------- %
 % ------------------------------------------ %
-% Written by David Dashti & Filip Söderquist %
-% ------------------------------------------ %
+
 
 
 Nvec = [9, 19, 39, 79];      % Number of steps                      

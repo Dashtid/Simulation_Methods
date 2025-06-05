@@ -1,13 +1,7 @@
-% ----- % Answer to Quiz Question 2B  % ---- %
-% ------------------------------------------ %
-% -------- Written by David Dashti --------- %
-% ------------------------------------------ %
+% This code solves a 1D finite element problem using two linear elements.
+% The problem involves a stiffness matrix derived from a modified linear equation.
 
-% This is a smaller problem which was a part of a quiz
-% Normally, A = 1 but in this case it was A = x + 1 which made for a ...
-% different stiffness matrix
-
-% % Declaring the variables given in the task
+% % Declaring the variables 
 % I also going to use a lot of formulas implicitly
 E = 1; 
 L = 1; 
@@ -45,4 +39,4 @@ h_v = [0*h, 1*h, 2*h];
 plot(h_v, u_final);
 xlabel('h');
 ylabel('u');
-title('Solution to the question 2 using 2 linear elements');
+title('Solution using 2 linear elements');

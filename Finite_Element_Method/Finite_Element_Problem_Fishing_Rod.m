@@ -1,8 +1,6 @@
-% ------ % Solution to Laboration 3 % ------ %
 % ------- % Finite Element Problem % ------- %
 % ------------------------------------------ %
-% Written by David Dashti & Filip Söderquist %
-% ------------------------------------------ %
+
 
 % Given variables
 I = (pi * 0.05^4)/4;            % Inertia

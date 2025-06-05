@@ -1,108 +1,103 @@
-% -- % Answer to Quiz: Molecular Sim.  % --- %
-% ------------------------------------------ %
-% -------- Written by David Dashti --------- %
-% ------------------------------------------ %
+% -- % Molecular Simulation using Verlet's Algorithm % -- %
 
-% The task is to simulate, using Verlet's Method, the van der Waal
-% interactions of two Argon atoms. One of the atoms is fixed and the
-% other one has a mass of 40 Dalton. We model the interactions with the
-% Lennart-Jones equation of potential and we are solving for both position
-% & velocity of the moving object, being the atoms. To solve this I am
-% going to implement the Velocity Verlet Algorithm
+% This script simulates the van der Waals interaction between two Argon atoms,
+% where one atom is fixed and the other has a mass of 40 Dalton.
+% The Lennard-Jones potential is used to model the interaction.
+% The Velocity Verlet algorithm is implemented to solve for position and velocity.
 
-% The Velocity Verlet's Algorithm is the following:
-% r(t + h) = 2 * r(t) + h * v(t) + 1/2 * a(t) * h^2 
-% v(t + h) = v(t) + h/2 * (a(t) + a(t + h)
+% The Velocity Verlet Algorithm:
+%   r(t + h) = 2 * r(t) + h * v(t) + 0.5 * a(t) * h^2
+%   v(t + h) = v(t) + 0.5 * h * (a(t) + a(t + h))
+% where a = F/m and F is the negative derivative of the Lennard-Jones potential.
 
-% Also:
-% a = F/m
-% F is the negative derivation of the Lennart-Jones potential 
+% --- Main Simulation --- %
 
-% --- Main --- %
+% Simulate with different time steps as instructed
 
-% Solving the system with different time steps as instructed %
-
-% Time step = 1 ps
+% Time step = 1 ps (N = 3)
 Verlet(3);
 
-% Time step = 0.3 ps
+% Time step = 0.3 ps (N = 10)
 Verlet(10);
 
-% Time step = 0.15 ps
+% Time step = 0.15 ps (N = 20)
 Verlet(20);
 
-
-% --- Function --- % 
+% --- Velocity Verlet Simulation Function --- %
 function Verlet(N)
+    % Verlet(N)
+    % Simulates the motion of an Argon atom using the Velocity Verlet algorithm.
+    % N: Number of time steps (the total simulated time is 3 ps)
 
-% --- SETUP --- %
-% Values given in the task %
-r0 = 4;
-v0 = 4.9;
-eps = 0.24 * 418.4;
-sigma = 3.4;
-m = 40;
-h = 3/N;
- 
+    % --- Parameters and Initial Conditions --- %
+    r0 = 4;                  % Initial position [Å]
+    v0 = 4.9;                % Initial velocity [Å/ps]
+    eps = 0.24 * 418.4;      % Depth of potential well [J/mol] (converted to appropriate units)
+    sigma = 3.4;             % Distance at which potential is zero [Å]
+    m = 40;                  % Mass [Dalton]
+    h = 3 / N;               % Time step [ps] (total time = 3 ps)
 
-% Creating lists needed for simulation
-R = zeros(1,N+1);
-V = zeros(1,N+1);
-E = zeros(1,N+1);
-Z = zeros(1,N+1);
+    % Preallocate arrays for position, velocity, energy, and time
+    R = zeros(1, N + 1);     % Position array
+    V = zeros(1, N + 1);     % Velocity array
+    E = zeros(1, N + 1);     % Energy array
+    Z = zeros(1, N + 1);     % Time array
 
-% Setting initial values
-R(1) = r0;
-V(1) = v0;
+    % Set initial values
+    R(1) = r0;
+    V(1) = v0;
 
-% --- ALGORITHM --- %
-% Running the Algorithm
-for i = 1:N
+    % --- Velocity Verlet Algorithm --- %
+    for i = 1:N
+        % Define the negative derivative of the Lennard-Jones potential (force)
+        neg_derivative = @(r) ((-48 * eps * sigma^12) / (r^13) + (24 * eps * sigma^6) / (r^7));
 
-neg_derivate = @(r) ((-48 * eps * sigma^12)/(r^13) + (24 * eps * sigma^6)/(r^7));
+        % Calculate position at next time step
+        R(i + 1) = 2 * R(i) + h * V(i) + (h^2 / (2 * m)) * neg_derivative(R(i));
 
-% Calculating the position
-R(i + 1) = 2 * R(i) + h * V(i) + (h^2/(2 * m)) * neg_derivate(i);
+        % Calculate velocity at next time step
+        V(i + 1) = V(i) + (h / (2 * m)) * (neg_derivative(R(i)) + neg_derivative(R(i + 1)));
 
-% Calculating the velocity
-V(i + 1) = V(i) + h/(2 * m) * (neg_derivate(i) + neg_derivate(i + 1));
+        % Calculate energy at current time step
+        E(i) = 0.5 * m * V(i)^2 - neg_derivative(R(i));
 
+        % Update time
+        Z(i + 1) = Z(i) + h;
+    end
 
-% Calculating the energy
-E(i) = 1/2 * m * V(i)^2 - neg_derivate(i);   
+    % Final energy calculation
+    E(N + 1) = 0.5 * m * V(N + 1)^2 - neg_derivative(R(N + 1));
 
+    % --- Plotting Results --- %
+    % Plot position
+    subplot(1, 3, 1)
+    plot(Z, R, '-o')
+    title('Position')
+    xlabel('Time [ps]')
+    ylabel('Position [Å]')
+    legend('h = 1', 'h = 0.3', 'h = 0.15', 'Location', 'northwest')
+    hold on;
 
-%Updating time step
-Z(i + 1) = Z(i) + h;
+    % Plot velocity
+    subplot(1, 3, 2)
+    plot(Z, V, '-o')
+    title('Velocity')
+    xlabel('Time [ps]')
+    ylabel('Velocity [Å/ps]')
+    legend('h = 1', 'h = 0.3', 'h = 0.15', 'Location', 'northwest')
+    hold on;
+
+    % Plot energy
+    subplot(1, 3, 3)
+    plot(Z, E, '-o')
+    title('Energy')
+    xlabel('Time [ps]')
+    ylabel('Energy')
+    legend('h = 1', 'h = 0.3', 'h = 0.15', 'Location', 'northwest')
+    hold on;
 end
 
-% Final energy calculation
-E(N+1) = 1/2 * m * V(N+1)^2 - neg_derivate(N+1);
-
-% --- PLOTTING --- %
-% Plotting the positions
-subplot(1,3,1)
-plot(Z',R',"-o")
-title('Position')
-legend('h = 1','h = 0.3','h = 0.15','Location','northwest')
-hold on;
-
-% Plotting the velocities
-subplot(1,3,2)
-plot(Z,V,"-o")
-title('Velocity')
-legend('h = 1','h = 0.3','h = 0.15','Location','northwest')
-hold on;
-
-% PLotting the energy
-subplot(1,3,3)
-plot(Z,E,"-o")
-title('Energy')
-legend('h = 1','h = 0.3','h = 0.15','Location','northwest')
-hold on;
-end
 
 
 
 
-    
